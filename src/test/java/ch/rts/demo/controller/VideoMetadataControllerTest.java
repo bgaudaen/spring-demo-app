@@ -1,5 +1,6 @@
 package ch.rts.demo.controller;
 
+import ch.rts.demo.MongoDBInitializer;
 import ch.rts.demo.domain.dto.ChapterMetadata;
 import ch.rts.demo.domain.dto.VideoMetadata;
 import ch.rts.demo.domain.model.VideoMetadataEntity;
@@ -11,6 +12,7 @@ import org.springframework.boot.test.autoconfigure.web.client.AutoConfigureWebCl
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Mono;
@@ -24,6 +26,7 @@ import static org.hamcrest.Matchers.hasSize;
 
 @SpringBootTest
 @ExtendWith(SpringExtension.class)
+@ContextConfiguration(initializers = MongoDBInitializer.class)
 @AutoConfigureWebTestClient
 @AutoConfigureWebClient
 public class VideoMetadataControllerTest {
@@ -128,7 +131,6 @@ public class VideoMetadataControllerTest {
 
     @Test
     public void parallel_update_sequence() {
-        // TODO: Implement this test.
         // 1. Create initial video without chapters
         // 2. Execute previous update sequence in parallel
         // Only one update should succeed, the two others should fail with HTTP error code: 412 Precondition Failed

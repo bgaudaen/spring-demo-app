@@ -17,9 +17,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.net.URL;
 import java.time.Instant;
-import java.util.Collection;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Document(collection = VideoMetadataEntity.VIDEO_METADATA_COLLECTION)
@@ -121,8 +120,31 @@ public class VideoMetadataEntity extends VideoMetadata {
     }
 
     public VideoMetadataEntity merge(VideoMetadata incoming) {
-        // TODO: implement merge logic.
-        return VideoMetadataEntity.toBuilder(incoming).build();
+        Map<String, ChapterMetadataEntity> currentChapters = chapters().stream().collect(Collectors.toMap(ChapterMetadata::externalId, Function.identity()));
+
+        // merge all incoming chapters with the currently existing ones and create them if they are new
+        List<ChapterMetadataEntity> chapters = incoming.chapters().stream()
+            .map(chapter ->
+                Optional.ofNullable(currentChapters.remove(chapter.externalId()))
+                    .map(chapterMetadataEntity -> chapterMetadataEntity.merge(chapter))
+                    .orElseGet(() -> ChapterMetadataEntity.toBuilder(chapter).build())
+            )
+            .collect(Collectors.toList());
+
+        // chapters not present in the new Video are kept as UNAVAILABLE to ensure that deletion can be tracked and pushed to subsystems
+        chapters.addAll(
+            currentChapters.values().stream()
+                .map(chapter -> chapter.toBuilder().state(PublicationState.UNAVAILABLE).build())
+                .collect(Collectors.toList())
+        );
+
+        return VideoMetadataEntity.toBuilder(incoming)
+            ._id(_id)
+            .internalId(internalId())
+            .createdDate(createdDate())
+            .clearChapters()
+            .chapters(chapters)
+            .build();
     }
 
     public VideoMetadata toDTO() {
