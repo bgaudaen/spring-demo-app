@@ -22,7 +22,11 @@ public class VideoController {
     }
 
     @GetMapping
-    public Flux<Video> getAllVideos(@PageableDefault(size = 20) Pageable pageable) {
+    public Flux<Video> getAllVideos(@RequestParam(required = false) String search, @PageableDefault(size = 20) Pageable pageable) {
+        if (search != null && !search.isBlank()) {
+            return repository.search(search, pageable);
+        }
+
         return repository.findAllBy(pageable);
     }
 

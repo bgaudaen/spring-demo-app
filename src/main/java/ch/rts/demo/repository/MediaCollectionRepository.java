@@ -13,6 +13,9 @@ public interface MediaCollectionRepository extends ReactiveCrudRepository<MediaC
 
     Flux<MediaCollection> findBy(Query query, Pageable pageable);
 
+    @org.springframework.data.mongodb.repository.Query("{$text: {$search: ?0}}")
+    Flux<MediaCollection> search(String text, Pageable pageable);
+
     Flux<MediaCollection> findAllBy(Pageable pageable);
 
 }

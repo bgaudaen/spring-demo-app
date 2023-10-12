@@ -3,9 +3,6 @@ package ch.rts.demo.controller;
 import ch.rts.demo.domain.MediaCollection;
 import ch.rts.demo.repository.MediaCollectionRepository;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.data.mongodb.core.query.TextCriteria;
-import org.springframework.data.mongodb.core.query.TextQuery;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
@@ -24,16 +21,8 @@ public class MediaCollectionController {
 
     @GetMapping
     public Flux<MediaCollection> getAllMediaCollections(@RequestParam(required = false) String search, Pageable pageable) {
-
         if (search != null && !search.isBlank()) {
-            TextCriteria criteria = TextCriteria.forLanguage("fr")
-                .matchingAny(search);
-
-            Query query = TextQuery.queryText(criteria)
-                .sortByScore()
-                .with(pageable);
-
-            return repository.findBy(query, pageable);
+            return repository.search(search, pageable);
         }
 
         return repository.findAllBy(pageable);
