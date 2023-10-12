@@ -12,6 +12,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @RestController
+@CrossOrigin(origins = "http://localhost:5500")
 @RequestMapping("/api/media-collection")
 public class MediaCollectionController {
 
