@@ -1,0 +1,12 @@
+version: "3.7"
+
+services:
+  mongo:
+    image: mongo:4.4.19
+    restart: 'always'
+    expose:
+      - 27017
+    ports:
+      - "127.0.0.1:29017:27017"
+    volumes:
+      - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js
